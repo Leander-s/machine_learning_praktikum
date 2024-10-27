@@ -6,19 +6,19 @@ Source code der im paper gegeben war.
 
     gnn.py ../data/<dataset>/<data>.csv <model> <task>
 
-#### dataset
+- #### dataset
 
 kann "dataset_used_for_modeling" oder "washed_dataset" sein
 
-#### data
+- #### data
 
 kann irgendein csv file aus dem dataset folder sein
 
-#### model
+- #### model
 
 kann "gcn", "mpnn", "gat" oder "attentivefp" sein
 
-#### task
+- #### task
 
 kann "cla" oder "reg" sein
 
