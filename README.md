@@ -4,7 +4,11 @@ Source code der im paper gegeben war.
 
 ### gnn.py
 
+#### Linux
     python3 ./gnn.py ../data/<dataset>/<data>.csv <model> <task>
+#### Windows
+    python gnn.py ..\data\<dataset>\<data>.csv <model> <task>
+(Hab windows nicht getestet)
 
 - **dataset** kann "dataset_used_for_modeling" oder "washed_dataset" sein
 - **data** kann irgendein csv file aus dem dataset folder sein
