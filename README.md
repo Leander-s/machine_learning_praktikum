@@ -4,6 +4,8 @@
 
 # Code
 
+Source code der im paper gegeben war.
+
 ## Python environment aktivieren
 
 ### POSIX
@@ -26,8 +28,9 @@
 
 ## Dependencies
 
+- DGL : https://www.dgl.ai/pages/start.html
 
-Source code der im paper gegeben war.
+init.sh sollte alle dependencies in dem python env installieren. Noch ist das nicht der Fall
 
 ## gnn.py
 
