@@ -24,12 +24,12 @@
 #### PowerShell
     env\Scripts\Activate.ps1
 
-### Dependencies
+## Dependencies
 
 
 Source code der im paper gegeben war.
 
-### gnn.py
+## gnn.py
 
 #### Linux
     python3 ./gnn.py ../data/<dataset>/<data>.csv <model> <task>
