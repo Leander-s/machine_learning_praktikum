@@ -10,23 +10,8 @@ init.sh sollte ein neues venv erstellen und alle dependencies installieren. Das 
 
 ## Python environment aktivieren
 
-### POSIX
+    conda activate ml_gnn_env
 
-#### Bash
-    source ./env/bin/activate
-#### Fish 
-    source ./env/bin/activate.fish
-#### csh/tcsh
-    source ./env/bin/activate.csh
-#### pwsh
-    env/bin/Activate.ps1
-
-### Windows
-
-#### cmd
-    env\Scripts\activate.bat
-#### PowerShell
-    env\Scripts\Activate.ps1
 
 ## Dependencies
 
@@ -37,7 +22,7 @@ init.sh sollte alle dependencies in dem python env installieren. Noch ist das ni
 ## gnn.py
 
 #### Linux
-    python3 ./gnn.py ../data/<dataset>/<data>.csv <model> <task>
+    python ./gnn.py ../data/<dataset>/<data>.csv <model> <task>
 #### Windows
     python gnn.py ..\data\<dataset>\<data>.csv <model> <task>
 (Hab windows nicht getestet)
