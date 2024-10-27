@@ -1,3 +1,7 @@
+# TODO
+
+- Liste von **dependencies** für den source code. Habe ich im paper nicht gesehen.
+
 # Code
 
 Source code der im paper gegeben war.
