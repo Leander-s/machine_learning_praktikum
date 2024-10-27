@@ -1,19 +1,19 @@
-**Code**
+# Code
 
 Source code der im paper gegeben war.
 
-## Fragen
+### Fragen
 
 Wie genau funktioniert der code. Welche argumente machen was, wo kommt der output raus.
 
-**Data**
+# Data
 
 Data zum trainieren/testen der Modelle.
 
-## Fragen
+### Fragen
 
 Was ist der unterschied zwischen "dataset_used_for_modeling" und "washed_dataset"
 
-**Figure**
+# Figure
 
 Tabelle der Ergebnisse
