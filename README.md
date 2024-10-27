@@ -4,6 +4,29 @@
 
 # Code
 
+## Python environment aktivieren
+
+### POSIX
+
+#### Bash
+    source ./env/bin/activate
+#### Fish 
+    source ./env/bin/activate.fish
+#### csh/tcsh
+    source ./env/bin/activate.csh
+#### pwsh
+    env/bin/Activate.ps1
+
+### Windows
+
+#### cmd
+    env\Scripts\activate.bat
+#### PowerShell
+    env\Scripts\Activate.ps1
+
+### Dependencies
+
+
 Source code der im paper gegeben war.
 
 ### gnn.py
