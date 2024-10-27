@@ -6,6 +6,8 @@
 
 Source code der im paper gegeben war.
 
+init.sh sollte ein neues venv erstellen und alle dependencies installieren. Das venv muss allerdings noch aktiviert werden.
+
 ## Python environment aktivieren
 
 ### POSIX
