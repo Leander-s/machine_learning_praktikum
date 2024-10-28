@@ -3,33 +3,27 @@
 conda init
 
 echo "Creating virtual environment"
-conda create -y -n ml_gnn_env python=3.9
+conda create -y -n ml_gnn_env python=3.6.5
 
-echo "Installing packaging"
-conda install -y -n ml_gnn_env packaging
-
-echo "Checking for updates"
-conda update -y -n ml_gnn_env setuptools
-
+echo "Installing pip"
+conda install -y -n ml_gnn_env pip
 echo "Installing pandas"
 conda install -y -n ml_gnn_env pandas
 
 echo "Installing pytorch"
-conda install -y -n ml_gnn_env pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1  pytorch-cuda=11.8 torchdata -c pytorch -c nvidia
+conda install -y -n ml_gnn_env pytorch==1.3.1 cudatoolkit==9.2 -c pytorch -c nvidia
 
 echo "Installing dgl"
-conda install -y -n ml_gnn_env -c dglteam/label/th24_cu121 dgl
-conda install -y -n ml_gnn_env -c dglteam/label/th24_cu121 dgl[graphbolt]
+conda run -n ml_gnn_env python -m pip install dgl==0.4.1
 
 echo "Installing scikit-learn"
-conda install -y -n ml_gnn_env scikit-learn
+conda install -y -n ml_gnn_env scikit-learn==0.20.1
+
+echo "Installing sgboost"
+conda install -y -n ml_gnn_env conda-forge::xgboost==0.80
+
+echo "Installing rdkit"
+conda install -y -n ml_gnn_env -c rdkit rdkit=2019.09.1
 
 echo "Installing hyperopt"
-conda install -y -n ml_gnn_env conda-forge::hyperopt
-
-echo "Installing pydantic"
-conda install -y -n ml_gnn_env conda-forge::pydantic
-
-echo "Installing cuda tools"
-conda install -y -n ml_gnn_env cudatoolkit==12.1
-conda install -y -n ml_gnn_env cudnn
+conda run -n ml_gnn_env python -m pip install hyperopt==0.2
