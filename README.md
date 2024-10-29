@@ -1,12 +1,20 @@
 # TODO
 
-- Liste von **dependencies** für den source code. Habe ich im paper nicht gesehen.
 
 # Code
 
 Source code der im paper gegeben war.
 
-init.sh sollte ein neues venv erstellen und alle dependencies installieren. Das venv muss allerdings noch aktiviert werden.
+## Docker
+
+Build docker image
+
+    docker build -t ml_container .
+
+Run docker container
+
+    docker run -it ml_container
+
 
 ## Python environment aktivieren
 
@@ -17,15 +25,11 @@ init.sh sollte ein neues venv erstellen und alle dependencies installieren. Das 
 
 - DGL : https://www.dgl.ai/pages/start.html
 
-init.sh sollte alle dependencies in dem python env installieren. Noch ist das nicht der Fall
+sollten alle durch das Dockerfile installiert sein
 
-## gnn.py
+## Ausführung
 
-#### Linux
-    python ./gnn.py ../data/<dataset>/<data>.csv <model> <task>
-#### Windows
-    python gnn.py ..\data\<dataset>\<data>.csv <model> <task>
-(Hab windows nicht getestet)
+    python gnn.py ../data/<dataset>/<data>.csv <model> <task>
 
 - **dataset** kann "dataset_used_for_modeling" oder "washed_dataset" sein
 - **data** kann irgendein csv file aus dem dataset folder sein
