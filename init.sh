@@ -15,7 +15,7 @@ echo "Installing scikit-learn"
 conda install -y -n ml_gnn_env scikit-learn==0.20.1
 
 echo "Installing hyperopt"
-conda run -n ml_gnn_env python -m pip -q install pymongo==2.0.0
+conda run -n ml_gnn_env python -m pip -q install bson==0.1.0
 conda run -n ml_gnn_env python -m pip -q install hyperopt==0.2
 
 echo "Installing xgboost"
