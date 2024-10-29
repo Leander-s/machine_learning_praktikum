@@ -7,7 +7,7 @@ RUN apt-get update \
     && apt-get install -y vim \
     && apt-get clean
 
-RUN git clone https://github.com/Leander-s/machine_learning_praktikum.git
+RUN git clone https://gitlab.rlp.net/lfunken/machine_learning_praktikum.git
 
 WORKDIR ./machine_learning_praktikum
 
