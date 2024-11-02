@@ -3,19 +3,19 @@
 
 # Code
 
-Source code der im paper gegeben war. Funktioniert nur mit CUDA! 
+Source code provided in the paper. Requires CUDA!
 
 ## Ubuntu
 
-Das Nvidia docker toolkit muss installiert sein: 
+Nvidia docker toolkit is required:
 
     https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
-Alternativ kann man miniconda installieren
+Alternatively you could install miniconda
 
     https://docs.anaconda.com/miniconda/miniconda-install/
 
-und dann einfach:
+and then:
 
     ./init.sh
     conda activate ml
@@ -31,38 +31,35 @@ Run docker container
     docker run --gpus all -it ml_container
 
 
-## Python environment aktivieren
+## Activate python environment
 
     conda activate ml
 
 
 ## Dependencies
 
-sollten alle durch das Dockerfile installiert sein
+- nvidia docker toolkit OR miniconda
+- CUDA capable GPU
 
-## Ausführung
+### Python packages
+Should be installed by init.sh
+
+## Execution
 
 ### gnn
 
     python gnn.py ../data/<dataset>/<data>.csv <model> <task>
 
-- **dataset** kann "dataset_used_for_modeling" oder "washed_dataset" sein
-- **data** kann irgendein csv file aus dem dataset folder sein
-- **model** kann "gcn", "mpnn", "gat" oder "attentivefp" sein
-- **task** kann "cla" oder "reg" sein
-
-### Fragen
-
-Wie genau funktioniert der code. Welche argumente machen was, wo kommt der output raus.
+- **dataset**: "dataset_used_for_modeling" or "washed_dataset"
+- **data**: can be any csv file in the dataset folder
+- **model**: "gcn", "mpnn", "gat" or "attentivefp"
+- **task**: "cla" or "reg"
 
 # Data
 
-Data zum trainieren/testen der Modelle.
-
-### Fragen
-
-Was ist der unterschied zwischen "dataset_used_for_modeling" und "washed_dataset"
+- csv files containing datasets for training/validating/testing.
+- output files in .bin format are also stored here
 
 # Figure
 
-Tabelle der Ergebnisse
+Results provided by the paper.
