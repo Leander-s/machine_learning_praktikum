@@ -28,7 +28,7 @@ Build docker image
 
 Run docker container
 
-    docker run --gpus all -it ml_container
+    docker run --gpus all -v ./results:/machine_learning_praktikum/code/stat_res -it ml_container
 
 
 ## Activate python environment
