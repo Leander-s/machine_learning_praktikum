@@ -11,6 +11,6 @@ WORKDIR /machine_learning_praktikum
 
 COPY . /machine_learning_praktikum
 
-RUN chmod +x ./init.sh && ./init.sh
+RUN chmod +x ./init.sh && /bin/bash ./init.sh
 
 CMD ["bash"]

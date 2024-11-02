@@ -3,7 +3,22 @@
 
 # Code
 
-Source code der im paper gegeben war.
+Source code der im paper gegeben war. Funktioniert nur mit Nvidia GPUs! 
+
+## Ubuntu
+
+Das Nvidia docker toolkit muss installiert sein: 
+
+    https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+
+Alternativ kann man miniconda installieren
+
+    https://docs.anaconda.com/miniconda/miniconda-install/
+
+und dann einfach:
+
+    ./init.sh
+    conda activate ml
 
 ## Docker
 
@@ -13,21 +28,21 @@ Build docker image
 
 Run docker container
 
-    docker run -it ml_container
+    docker run --gpus all -it ml_container
 
 
 ## Python environment aktivieren
 
-    conda activate ml_gnn_env
+    conda activate ml
 
 
 ## Dependencies
 
-- DGL : https://www.dgl.ai/pages/start.html
-
 sollten alle durch das Dockerfile installiert sein
 
 ## Ausführung
+
+### gnn
 
     python gnn.py ../data/<dataset>/<data>.csv <model> <task>
 
