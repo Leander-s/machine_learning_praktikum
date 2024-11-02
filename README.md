@@ -3,7 +3,7 @@
 
 # Code
 
-Source code der im paper gegeben war. Funktioniert nur mit Nvidia GPUs! 
+Source code der im paper gegeben war. Funktioniert nur mit CUDA! 
 
 ## Ubuntu
 
