@@ -1,3 +1,5 @@
+**/code/saved_models/*.pth
+**/code/stat_res/*.csv
 **/test*
 **__pycache*
 **/*bin
