@@ -50,6 +50,10 @@ Should be installed by init.sh
 
     python gnn.py ../data/<dataset>/<data>.csv <model> <task>
 
+If that doesn't work, try:
+
+    python3 gnn.py ../data/<dataset>/<data>.csv <model> <task>
+
 - **dataset**: "dataset_used_for_modeling" or "washed_dataset"
 - **data**: can be any csv file in the dataset folder
 - **model**: "gcn", "mpnn", "gat" or "attentivefp"

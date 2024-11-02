@@ -50,6 +50,10 @@ sollten alle durch das Dockerfile installiert sein
 
     python gnn.py ../data/<dataset>/<data>.csv <model> <task>
 
+Wenn das nicht funktioniert, probier:
+
+    python3 gnn.py ../data/<dataset>/<data>.csv <model> <task>
+
 - **dataset** "dataset_used_for_modeling" oder "washed_dataset"
 - **data** kann irgendein csv file aus dem dataset folder sein
 - **model** "gcn", "mpnn", "gat" oder "attentivefp"
