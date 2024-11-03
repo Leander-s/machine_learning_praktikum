@@ -4,4 +4,4 @@
 **__pycache*
 **/*bin
 **push.sh
-**/results
+**/results/*.csv
