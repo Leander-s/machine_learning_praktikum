@@ -22,13 +22,29 @@ und dann einfach:
 
 ## Docker
 
+### Linux / WSL
+
+Build docker
+
+    ./build_docker.sh
+
+Führe alle Tests im Container im Hintergrund aus
+
+    ./run_docker.sh
+
+### Anderes
+
 Build docker image
 
     docker build -t ml_container .
 
-Run docker container
+Starte Container
 
     docker run --gpus all -v ./results:/machine_learning_praktikum/code/stat_res -it ml_container
+
+Starte alle Tests im Container
+
+    /bin/bash /machine_learning_praktikum/scripts/run_everything.sh
 
 
 ## Python environment aktivieren

@@ -22,6 +22,18 @@ and then:
 
 ## Docker
 
+### Linux / WSL
+
+Build docker
+
+    ./build_docker.sh
+
+Run all the tests in the docker container in the background
+
+    ./run_docker.sh
+
+### Other
+
 Build docker image
 
     docker build -t ml_container .
@@ -29,6 +41,11 @@ Build docker image
 Run docker container
 
     docker run --gpus all -v ./results:/machine_learning_praktikum/code/stat_res -it ml_container
+
+Run all tests from within docker container
+
+    /bin/bash /machine_learning_praktikum/scripts/run_everything.sh
+
 
 
 ## Activate python environment
