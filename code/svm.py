@@ -28,7 +28,8 @@ def statistical(y_true, y_pred, y_pro):
     se = tp / (tp + fn)
     sp = tn / (tn + fp)
     acc = (tp + tn) / (tn + fp + fn + tp)
-    mcc = (tp * tn - fp * fn) / np.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) + 1e-8)
+    mcc = (tp * tn - fp * fn) / np.sqrt((tp + fp) *
+                                        (tp + fn) * (tn + fp) * (tn + fn) + 1e-8)
     auc_prc = auc(precision_recall_curve(y_true, y_pro, pos_label=1)[1],
                   precision_recall_curve(y_true, y_pro, pos_label=1)[0])
     auc_roc = roc_auc_score(y_true, y_pro)
@@ -46,7 +47,7 @@ def all_one_zeros(data):
 feature_selection = False
 file_name = sys.argv[1]  # './dataset/esol_moe_pubsubfp.csv'
 task_type = sys.argv[2]  # 'reg' or 'cla'
-dataset_label = file_name.split('/')[-1].split('_')[0]  # dataset_label = 'esol'
+dataset_label = file_name.split('/')[-1].split('_')[0]  # dataset_label='esol'
 tasks = tasks_dic[dataset_label]
 OPT_ITERS = 50
 repetitions = 50
@@ -138,22 +139,26 @@ def hyper_runing(subtask):
         data_te_x = trans2.transform(data_te_x)
 
     num_fea = data_tr_x.shape[1]
-    print('the num of retained features for the ' + dataset_label + ' ' + subtask + ' is:', num_fea)
+    print('the num of retained features for the ' +
+          dataset_label + ' ' + subtask + ' is:', num_fea)
 
     def hyper_opt(args):
         model = svm.SVC(**args, kernel='rbf', random_state=1, probability=True, class_weight='balanced',
                         cache_size=2000, max_iter=10000) if task_type == 'cla' else \
             svm.SVR(**args, kernel='rbf', cache_size=2000, max_iter=10000)
         model.fit(data_tr_x, data_tr_y)
-        val_preds = model.predict_proba(data_va_x) if task_type == 'cla' else model.predict(data_va_x)
+        val_preds = model.predict_proba(
+            data_va_x) if task_type == 'cla' else model.predict(data_va_x)
         loss = 1 - roc_auc_score(data_va_y, val_preds[:, 1]) if task_type == 'cla' else np.sqrt(
             mean_squared_error(data_va_y, val_preds))
         return {'loss': loss, 'status': STATUS_OK}
 
     # start hyper-parameters optimization
     trials = Trials()
-    best_results = fmin(hyper_opt, space_, algo=tpe.suggest, max_evals=OPT_ITERS, trials=trials, show_progressbar=False)
-    print('the best hyper-parameters for ' + dataset_label + ' ' + subtask + ' are:  ', best_results)
+    best_results = fmin(hyper_opt, space_, algo=tpe.suggest,
+                        max_evals=OPT_ITERS, trials=trials, show_progressbar=False)
+    print('the best hyper-parameters for ' + dataset_label +
+          ' ' + subtask + ' are:  ', best_results)
     best_model = svm.SVC(C=best_results['C'], gamma=best_results['gamma'], kernel='rbf', random_state=1,
                          probability=True, class_weight='balanced', cache_size=2000, max_iter=10000) \
         if task_type == 'cla' else svm.SVR(C=best_results['C'], gamma=best_results['gamma'], kernel='rbf',
@@ -166,35 +171,42 @@ def hyper_runing(subtask):
         tr_pred = best_model.predict_proba(data_tr_x)
         tr_results = [dataset_label, subtask, 'tr', num_fea, num_of_compounds, data_tr_y[data_tr_y == 1].shape[0],
                       data_tr_y[data_tr_y == 0].shape[0],
-                      data_tr_y[data_tr_y == 0].shape[0] / data_tr_y[data_tr_y == 1].shape[0],
+                      data_tr_y[data_tr_y == 0].shape[0] /
+                      data_tr_y[data_tr_y == 1].shape[0],
                       best_results['C'],
                       best_results['gamma']]
-        tr_results.extend(statistical(data_tr_y, np.argmax(tr_pred, axis=1), tr_pred[:, 1]))
+        tr_results.extend(statistical(
+            data_tr_y, np.argmax(tr_pred, axis=1), tr_pred[:, 1]))
 
         # validation set
         va_pred = best_model.predict_proba(data_va_x)
         va_results = [dataset_label, subtask, 'va', num_fea, num_of_compounds, data_va_y[data_va_y == 1].shape[0],
                       data_va_y[data_va_y == 0].shape[0],
-                      data_va_y[data_va_y == 0].shape[0] / data_va_y[data_va_y == 1].shape[0],
+                      data_va_y[data_va_y == 0].shape[0] /
+                      data_va_y[data_va_y == 1].shape[0],
                       best_results['C'],
                       best_results['gamma']]
-        va_results.extend(statistical(data_va_y, np.argmax(va_pred, axis=1), va_pred[:, 1]))
+        va_results.extend(statistical(
+            data_va_y, np.argmax(va_pred, axis=1), va_pred[:, 1]))
 
         # test set
         te_pred = best_model.predict_proba(data_te_x)
         te_results = [dataset_label, subtask, 'te', num_fea, num_of_compounds, data_te_y[data_te_y == 1].shape[0],
                       data_te_y[data_te_y == 0].shape[0],
-                      data_te_y[data_te_y == 0].shape[0] / data_te_y[data_te_y == 1].shape[0],
+                      data_te_y[data_te_y == 0].shape[0] /
+                      data_te_y[data_te_y == 1].shape[0],
                       best_results['C'],
                       best_results['gamma']]
-        te_results.extend(statistical(data_te_y, np.argmax(te_pred, axis=1), te_pred[:, 1]))
+        te_results.extend(statistical(
+            data_te_y, np.argmax(te_pred, axis=1), te_pred[:, 1]))
     else:
         # training set
         tr_pred = best_model.predict(data_tr_x)
         tr_results = [dataset_label, subtask, 'tr', num_fea, num_of_compounds,
                       best_results['C'],
                       best_results['gamma'],
-                      np.sqrt(mean_squared_error(data_tr_y, tr_pred)), r2_score(data_tr_y, tr_pred),
+                      np.sqrt(mean_squared_error(data_tr_y, tr_pred)
+                              ), r2_score(data_tr_y, tr_pred),
                       mean_absolute_error(data_tr_y, tr_pred)]
 
         # validation set
@@ -202,7 +214,8 @@ def hyper_runing(subtask):
         va_results = [dataset_label, subtask, 'va', num_fea, num_of_compounds,
                       best_results['C'],
                       best_results['gamma'],
-                      np.sqrt(mean_squared_error(data_va_y, va_pred)), r2_score(data_va_y, va_pred),
+                      np.sqrt(mean_squared_error(data_va_y, va_pred)
+                              ), r2_score(data_va_y, va_pred),
                       mean_absolute_error(data_va_y, va_pred)]
 
         # test set
@@ -210,7 +223,8 @@ def hyper_runing(subtask):
         te_results = [dataset_label, subtask, 'te', num_fea, num_of_compounds,
                       best_results['C'],
                       best_results['gamma'],
-                      np.sqrt(mean_squared_error(data_te_y, te_pred)), r2_score(data_te_y, te_pred),
+                      np.sqrt(mean_squared_error(data_te_y, te_pred)
+                              ), r2_score(data_te_y, te_pred),
                       mean_absolute_error(data_te_y, te_pred)]
     return tr_results, va_results, te_results
 
@@ -234,7 +248,8 @@ else:
     best_hyper = pd.DataFrame(pd_res, columns=['dataset', 'subtask', 'set',
                                                'num_of_retained_feature',
                                                'num_of_compounds', 'C', 'gamma', 'rmse', 'r2', 'mae'])
-best_hyper.to_csv('./stat_res/' + dataset_label + '_moe_pubsub_svm_hyperopt_info.csv', index=0)
+best_hyper.to_csv('./stat_res/' + dataset_label +
+                  '_moe_pubsub_svm_hyperopt_info.csv', index=0)
 
 if task_type == 'cla':
     print('train', best_hyper[best_hyper['set'] == 'tr']['auc_roc'].mean(),
@@ -260,9 +275,11 @@ def best_model_runing(split):
     seed = split
     if task_type == 'cla':
         while True:
-            training_data, data_te = train_test_split(sub_dataset, test_size=0.1, random_state=seed)
+            training_data, data_te = train_test_split(
+                sub_dataset, test_size=0.1, random_state=seed)
             # the training set was further splited into the training set and validation set
-            data_tr, data_va = train_test_split(training_data, test_size=0.1, random_state=seed)
+            data_tr, data_va = train_test_split(
+                training_data, test_size=0.1, random_state=seed)
             if (all_one_zeros(data_tr[subtask]) or all_one_zeros(data_va[subtask]) or all_one_zeros(data_te[subtask])):
                 print(
                     '\ninvalid random seed {} due to one class presented in the {} splitted sets...'.format(seed,
@@ -273,9 +290,11 @@ def best_model_runing(split):
                 print('random seed used in repetition {} is {}'.format(split, seed))
                 break
     else:
-        training_data, data_te = train_test_split(sub_dataset, test_size=0.1, random_state=seed)
+        training_data, data_te = train_test_split(
+            sub_dataset, test_size=0.1, random_state=seed)
         # the training set was further splited into the training set and validation set
-        data_tr, data_va = train_test_split(training_data, test_size=0.1, random_state=seed)
+        data_tr, data_va = train_test_split(
+            training_data, test_size=0.1, random_state=seed)
 
     # prepare data for training
     # training set
@@ -326,7 +345,8 @@ def best_model_runing(split):
                       data_tr_y[data_tr_y == 1].shape[0],
                       data_tr_y[data_tr_y == 0].shape[0],
                       data_tr_y[data_tr_y == 0].shape[0] / data_tr_y[data_tr_y == 1].shape[0]]
-        tr_results.extend(statistical(data_tr_y, np.argmax(tr_pred, axis=1), tr_pred[:, 1]))
+        tr_results.extend(statistical(
+            data_tr_y, np.argmax(tr_pred, axis=1), tr_pred[:, 1]))
 
         # validation set
         va_pred = model.predict_proba(data_va_x)
@@ -334,7 +354,8 @@ def best_model_runing(split):
                       data_va_y[data_va_y == 1].shape[0],
                       data_va_y[data_va_y == 0].shape[0],
                       data_va_y[data_va_y == 0].shape[0] / data_va_y[data_va_y == 1].shape[0]]
-        va_results.extend(statistical(data_va_y, np.argmax(va_pred, axis=1), va_pred[:, 1]))
+        va_results.extend(statistical(
+            data_va_y, np.argmax(va_pred, axis=1), va_pred[:, 1]))
 
         # test set
         te_pred = model.predict_proba(data_te_x)
@@ -342,24 +363,28 @@ def best_model_runing(split):
                       data_te_y[data_te_y == 1].shape[0],
                       data_te_y[data_te_y == 0].shape[0],
                       data_te_y[data_te_y == 0].shape[0] / data_te_y[data_te_y == 1].shape[0]]
-        te_results.extend(statistical(data_te_y, np.argmax(te_pred, axis=1), te_pred[:, 1]))
+        te_results.extend(statistical(
+            data_te_y, np.argmax(te_pred, axis=1), te_pred[:, 1]))
     else:
         # training set
         tr_pred = model.predict(data_tr_x)
         tr_results = [split, dataset_label, subtask, 'tr', num_fea, num_of_compounds,
-                      np.sqrt(mean_squared_error(data_tr_y, tr_pred)), r2_score(data_tr_y, tr_pred),
+                      np.sqrt(mean_squared_error(data_tr_y, tr_pred)
+                              ), r2_score(data_tr_y, tr_pred),
                       mean_absolute_error(data_tr_y, tr_pred)]
 
         # validation set
         va_pred = model.predict(data_va_x)
         va_results = [split, dataset_label, subtask, 'va', num_fea, num_of_compounds,
-                      np.sqrt(mean_squared_error(data_va_y, va_pred)), r2_score(data_va_y, va_pred),
+                      np.sqrt(mean_squared_error(data_va_y, va_pred)
+                              ), r2_score(data_va_y, va_pred),
                       mean_absolute_error(data_va_y, va_pred)]
 
         # test set
         te_pred = model.predict(data_te_x)
         te_results = [split, dataset_label, subtask, 'te', num_fea, num_of_compounds,
-                      np.sqrt(mean_squared_error(data_te_y, te_pred)), r2_score(data_te_y, te_pred),
+                      np.sqrt(mean_squared_error(data_te_y, te_pred)
+                              ), r2_score(data_te_y, te_pred),
                       mean_absolute_error(data_te_y, te_pred)]
     return tr_results, va_results, te_results
 
@@ -425,26 +450,29 @@ else:
     stat_res = pd.DataFrame(pd_res, columns=['split', 'dataset', 'subtask', 'set',
                                              'num_of_retained_feature',
                                              'num_of_compounds', 'rmse', 'r2', 'mae'])
-stat_res.to_csv('./stat_res/' + dataset_label + '_svm_statistical_results_split50_20200622.csv', index=0)
+stat_res.to_csv('./stat_res/' + dataset_label +
+                '_svm_statistical_results_split50_20200622.csv', index=0)
 # single tasks+
 if len(tasks) == 1:
-    args = {'data_label': dataset_label, 'metric': 'auc_roc' if task_type == 'cla' else 'rmse', 'model': 'SVM'}
+    args = {'data_label': dataset_label,
+            'metric': 'auc_roc' if task_type == 'cla' else 'rmse', 'model': 'SVM'}
     print('{}_{}: the mean {} for the training set is {:.3f} with std {:.3f}'.format(args['data_label'], args['model'],
                                                                                      args['metric'], np.mean(
-            stat_res[stat_res['set'] == 'tr'][args['metric']]), np.std(
-            stat_res[stat_res['set'] == 'tr'][args['metric']])))
+        stat_res[stat_res['set'] == 'tr'][args['metric']]), np.std(
+        stat_res[stat_res['set'] == 'tr'][args['metric']])))
     print(
         '{}_{}: the mean {} for the validation set is {:.3f} with std {:.3f}'.format(args['data_label'], args['model'],
                                                                                      args['metric'], np.mean(
-                stat_res[stat_res['set'] == 'va'][args['metric']]), np.std(
-                stat_res[stat_res['set'] == 'va'][args['metric']])))
+            stat_res[stat_res['set'] == 'va'][args['metric']]), np.std(
+            stat_res[stat_res['set'] == 'va'][args['metric']])))
     print('{}_{}: the mean {} for the test set is {:.3f} with std {:.3f}'.format(args['data_label'], args['model'],
                                                                                  args['metric'], np.mean(
-            stat_res[stat_res['set'] == 'te'][args['metric']]), np.std(
-            stat_res[stat_res['set'] == 'te'][args['metric']])))
+        stat_res[stat_res['set'] == 'te'][args['metric']]), np.std(
+        stat_res[stat_res['set'] == 'te'][args['metric']])))
 # multi-tasks
 else:
-    args = {'data_label': dataset_label, 'metric': 'auc_roc' if dataset_label != 'muv' else 'auc_prc', 'model': 'SVM'}
+    args = {'data_label': dataset_label, 'metric': 'auc_roc' if dataset_label !=
+            'muv' else 'auc_prc', 'model': 'SVM'}
     tr_acc = np.zeros(repetitions)
     va_acc = np.zeros(repetitions)
     te_acc = np.zeros(repetitions)
@@ -461,14 +489,17 @@ else:
     va_acc = va_acc / len(tasks)
     te_acc = te_acc / len(tasks)
     print('{}_{}: the mean {} for the training set is {:.3f} with std {:.3f}'.format(args['data_label'], args['model'],
-                                                                                     args['metric'], np.mean(tr_acc),
+                                                                                     args['metric'], np.mean(
+                                                                                         tr_acc),
                                                                                      np.std(tr_acc)))
     print(
         '{}_{}: the mean {} for the validation set is {:.3f} with std {:.3f}'.format(args['data_label'], args['model'],
-                                                                                     args['metric'], np.mean(va_acc),
+                                                                                     args['metric'], np.mean(
+                                                                                         va_acc),
                                                                                      np.std(va_acc)))
     print('{}_{}: the mean {} for the test set is {:.3f} with std {:.3f}'.format(args['data_label'], args['model'],
-                                                                                 args['metric'], np.mean(te_acc),
+                                                                                 args['metric'], np.mean(
+                                                                                     te_acc),
                                                                                  np.std(te_acc)))
 end = time.time()  # get the end time
 print('the elapsed time is:', (end - start), 'S')
