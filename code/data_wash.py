@@ -35,8 +35,8 @@ tasks_dic = {'bace': ['Class'], 'bbbp': ['p_np'], 'esol': ['measured log solubil
              'muv': [
                  "MUV-466", "MUV-548", "MUV-600", "MUV-644", "MUV-652", "MUV-689", "MUV-692", "MUV-712", "MUV-713",
                  "MUV-733", "MUV-737", "MUV-810", "MUV-832", "MUV-846", "MUV-852", "MUV-858", "MUV-859"
-             ],
-             'toxcast': [
+],
+    'toxcast': [
                  'ACEA_T47D_80hr_Negative', 'ACEA_T47D_80hr_Positive', 'APR_HepG2_CellCycleArrest_24h_dn',
                  'APR_HepG2_CellCycleArrest_24h_up', 'APR_HepG2_CellCycleArrest_72h_dn', 'APR_HepG2_CellLoss_24h_dn',
                  'APR_HepG2_CellLoss_72h_dn', 'APR_HepG2_MicrotubuleCSK_24h_dn', 'APR_HepG2_MicrotubuleCSK_24h_up',
@@ -191,7 +191,7 @@ tasks_dic = {'bace': ['Class'], 'bbbp': ['p_np'], 'esol': ['measured log solubil
                  'Tanguay_ZF_120hpf_PE_up', 'Tanguay_ZF_120hpf_PFIN_up', 'Tanguay_ZF_120hpf_PIG_up',
                  'Tanguay_ZF_120hpf_SNOU_up', 'Tanguay_ZF_120hpf_SOMI_up', 'Tanguay_ZF_120hpf_SWIM_up',
                  'Tanguay_ZF_120hpf_TRUN_up', 'Tanguay_ZF_120hpf_TR_up', 'Tanguay_ZF_120hpf_YSE_up'
-             ]}
+]}
 # f = open('tasks_dic.txt', 'w')
 # f.write(str(tasks_dic))
 # f.close()
@@ -247,12 +247,14 @@ for file_path in data_files:
     os.system(cmd1)
 
     # export mdb(database) as sdf file
-    cmd2 = "moebatch  -exec \"db_ExportSD ['%s', '%s', [],[]]\"" % (mdb_path, sdf_path)
+    cmd2 = "moebatch  -exec \"db_ExportSD ['%s', '%s', [],[]]\"" % (
+        mdb_path, sdf_path)
     os.system(cmd2)
 
     # execute data washing
     # cmd3 = "E:\moe2018\moe2018\bin\sdwash %s -o %s  -quiet  -salts -component -neutralize"%(sdf_path,sdf_washed_path)
-    cmd3 = "sdwash %s -o %s  -quiet  -salts -component -neutralize" % (sdf_path, sdf_washed_path)
+    cmd3 = "sdwash %s -o %s  -quiet  -salts -component -neutralize" % (
+        sdf_path, sdf_washed_path)
     os.system(cmd3)
 
     # import the washed sdf file as mdb file
@@ -293,7 +295,8 @@ for file_path in data_files:
     info.append(len(uncover_indx))
     print(
         'molecules in {} can not be processed by RDkit(version:2019.09.1) have:\n{}'.format(data_label, uncover_smiles))
-    print('molecules in {} can not be processed by MOE(version:2015.1001) have:\n{}'.format(data_label, uncover_moe))
+    print('molecules in {} can not be processed by MOE(version:2015.1001) have:\n{}'.format(
+        data_label, uncover_moe))
     print('the corresponding indexes for them are:\n{}'.format(uncover_indx))
     data.drop(index=uncover_indx, inplace=True)
     # data.reset_index(inplace=True, drop=True)
@@ -335,13 +338,15 @@ for file_path in data_files:
         # generate canonical smiles using RDKit
         cano_smiles.append(Chem.MolToSmiles(Chem.MolFromSmiles(smiles)))
     data['cano_smiles'] = cano_smiles
-    duplicates = data.cano_smiles.value_counts()[data.cano_smiles.value_counts() >= 2]
+    duplicates = data.cano_smiles.value_counts(
+    )[data.cano_smiles.value_counts() >= 2]
     dup_confilct = []
     dup_confilct_indx = []
     print('duplicates in {} have:\n {}'.format(data_label, duplicates))
     # remove duplicates with inconsistent labels or retain any of them with consistent labels
     for dup_smiles in duplicates.index:
-        new_df = pd.DataFrame(data[data.cano_smiles == dup_smiles][targets[data_label]].values)
+        new_df = pd.DataFrame(
+            data[data.cano_smiles == dup_smiles][targets[data_label]].values)
         new_df.fillna(14687941, inplace=True)
         dup_flag = len(np.unique(new_df.values, axis=0))
         # duplicates with consistent labels (keep any one)
@@ -351,20 +356,22 @@ for file_path in data_files:
         # duplicates with inconsistent labels (remove all)
         else:
             dup_confilct.append(dup_smiles)
-            dup_confilct_indx.extend(data[data.cano_smiles == dup_smiles].index)
-            data.drop(index=data[data.cano_smiles == dup_smiles].index, inplace=True)
-    print('duplicates with inconsistent labels in {} have:\n{}'.format(data_label, dup_confilct))
+            dup_confilct_indx.extend(
+                data[data.cano_smiles == dup_smiles].index)
+            data.drop(index=data[data.cano_smiles ==
+                      dup_smiles].index, inplace=True)
+    print('duplicates with inconsistent labels in {} have:\n{}'.format(
+        data_label, dup_confilct))
     print('the corresponding indexes for them are:\n{}'.format(dup_confilct_indx))
     info.append(len(dup_confilct))
     # data_new = copy.deepcopy(data)
 
     info.append(len(data))
-    #print(info)
+    # print(info)
     data.to_csv('./washed/' + data_label + '_new.csv')
     print('**************************************washing over for {}*****************************\n'.format(data_label))
     info_data = info_data.append(
-        pd.Series(info, index=['data set', 'origin_num', 'uncovered', 'inorganics', 'duplicates', 'new_num']),
+        pd.Series(info, index=['data set', 'origin_num',
+                  'uncovered', 'inorganics', 'duplicates', 'new_num']),
         ignore_index=True)
 info_data.to_csv('info_data.csv', index=False)
-
-
