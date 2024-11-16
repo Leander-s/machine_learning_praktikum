@@ -6,7 +6,7 @@ Get descriptor-based models to work
 
 # Code
 
-Source code provided in the paper. Requires CUDA!
+Source code provided in the paper.
 
 ## Ubuntu
 

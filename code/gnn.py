@@ -15,11 +15,13 @@ from dgl import backend as F
 from hyperopt import fmin, tpe, hp, Trials
 import sys
 from task_dict import tasks_dic
+from util import write_res
 
 start_time = time.time()
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
 set_random_seed(seed=43)
+
 
 def run_a_train_epoch(model, data_loader, loss_func, optimizer, args):
     model.train()
@@ -34,7 +36,7 @@ def run_a_train_epoch(model, data_loader, loss_func, optimizer, args):
             args['device']), bond_feats.to(args['device'])
 
         outputs = model(bg, atom_feats) if args['model'] in ['gcn', 'gat'] else model(bg, atom_feats,
-                                                                                               bond_feats)
+                                                                                      bond_feats)
         loss = (loss_func(outputs, labels) * (masks != 0).float()).mean()
         optimizer.zero_grad()
         loss.backward()
@@ -51,13 +53,18 @@ def run_a_train_epoch(model, data_loader, loss_func, optimizer, args):
         train_metric.update(outputs, labels, masks)
 
     if args['metric'] == 'rmse':
-        rmse_score = np.mean(train_metric.compute_metric(args['metric']))  # in case of multi-tasks
-        mae_score = np.mean(train_metric.compute_metric('mae'))  # in case of multi-tasks
-        r2_score = np.mean(train_metric.compute_metric('r2'))  # in case of multi-tasks
+        rmse_score = np.mean(train_metric.compute_metric(
+            args['metric']))  # in case of multi-tasks
+        # in case of multi-tasks
+        mae_score = np.mean(train_metric.compute_metric('mae'))
+        r2_score = np.mean(train_metric.compute_metric('r2')
+                           )  # in case of multi-tasks
         return {'rmse': rmse_score, 'mae': mae_score, 'r2': r2_score}
     else:
-        roc_score = np.mean(train_metric.compute_metric(args['metric']))  # in case of multi-tasks
-        prc_score = np.mean(train_metric.compute_metric('prc_auc'))  # in case of multi-tasks
+        roc_score = np.mean(train_metric.compute_metric(
+            args['metric']))  # in case of multi-tasks
+        prc_score = np.mean(train_metric.compute_metric(
+            'prc_auc'))  # in case of multi-tasks
         return {'roc_auc': roc_score, 'prc_auc': prc_score}
 
 
@@ -74,7 +81,7 @@ def run_an_eval_epoch(model, data_loader, args):
             labels, masks, atom_feats, bond_feats = labels.to(args['device']), masks.to(args['device']), atom_feats.to(
                 args['device']), bond_feats.to(args['device'])
             outputs = model(bg, atom_feats) if args['model'] in ['gcn', 'gat'] else model(bg, atom_feats,
-                                                                                                   bond_feats)
+                                                                                          bond_feats)
             outputs.cpu()
             labels.cpu()
             masks.cpu()
@@ -84,13 +91,18 @@ def run_an_eval_epoch(model, data_loader, args):
             torch.cuda.empty_cache()
             eval_metric.update(outputs, labels, masks)
     if args['metric'] == 'rmse':
-        rmse_score = np.mean(eval_metric.compute_metric(args['metric']))  # in case of multi-tasks
-        mae_score = np.mean(eval_metric.compute_metric('mae'))  # in case of multi-tasks
-        r2_score = np.mean(eval_metric.compute_metric('r2'))  # in case of multi-tasks
+        rmse_score = np.mean(eval_metric.compute_metric(
+            args['metric']))  # in case of multi-tasks
+        # in case of multi-tasks
+        mae_score = np.mean(eval_metric.compute_metric('mae'))
+        r2_score = np.mean(eval_metric.compute_metric('r2')
+                           )  # in case of multi-tasks
         return {'rmse': rmse_score, 'mae': mae_score, 'r2': r2_score}
     else:
-        roc_score = np.mean(eval_metric.compute_metric(args['metric']))  # in case of multi-tasks
-        prc_score = np.mean(eval_metric.compute_metric('prc_auc'))  # in case of multi-tasks
+        roc_score = np.mean(eval_metric.compute_metric(
+            args['metric']))  # in case of multi-tasks
+        prc_score = np.mean(eval_metric.compute_metric(
+            'prc_auc'))  # in case of multi-tasks
         return {'roc_auc': roc_score, 'prc_auc': prc_score}
 
 
@@ -133,20 +145,27 @@ Hspace = {'gcn': dict(l2=hp.choice('l2', [0, 10 ** -8, 10 ** -6, 10 ** -4]),
                                                  [[128, 128], [256, 256], [128, 64], [256, 128]]),
                       classifier_hidden_feats=hp.choice('classifier_hidden_feats', [128, 64, 256])),
           'mpnn': dict(l2=hp.choice('l2', [0, 10 ** -8, 10 ** -6, 10 ** -4]),
-                       lr=hp.choice('lr', [10 ** -2.5, 10 ** -3.5, 10 ** -1.5]),
-                       node_hidden_dim=hp.choice('node_hidden_dim', [64, 32, 16]),
-                       edge_hidden_dim=hp.choice('edge_hidden_dim', [64, 32, 16]),
+                       lr=hp.choice(
+                           'lr', [10 ** -2.5, 10 ** -3.5, 10 ** -1.5]),
+                       node_hidden_dim=hp.choice(
+                           'node_hidden_dim', [64, 32, 16]),
+                       edge_hidden_dim=hp.choice(
+                           'edge_hidden_dim', [64, 32, 16]),
                        num_layer_set2set=hp.choice('num_layer_set2set', [2, 3, 4])),
           'gat': dict(l2=hp.choice('l2', [0, 10 ** -8, 10 ** -6, 10 ** -4]),
                       lr=hp.choice('lr', [10 ** -2.5, 10 ** -3.5, 10 ** -1.5]),
                       gat_hidden_feats=hp.choice('gat_hidden_feats',
                                                  [[128, 128], [256, 256], [128, 64], [256, 128]]),
-                      num_heads=hp.choice('num_heads', [[2, 2], [3, 3], [4, 4], [4, 3], [3, 2]]),
+                      num_heads=hp.choice(
+                          'num_heads', [[2, 2], [3, 3], [4, 4], [4, 3], [3, 2]]),
                       classifier_hidden_feats=hp.choice('classifier_hidden_feats', [128, 64, 256])),
           'attentivefp': dict(l2=hp.choice('l2', [0, 10 ** -8, 10 ** -6, 10 ** -4]),
-                              lr=hp.choice('lr', [10 ** -2.5, 10 ** -3.5, 10 ** -1.5]),
-                              num_layers=hp.choice('num_layers', [2, 3, 4, 5, 6]),
-                              num_timesteps=hp.choice('num_timesteps', [1, 2, 3, 4, 5]),
+                              lr=hp.choice(
+                                  'lr', [10 ** -2.5, 10 ** -3.5, 10 ** -1.5]),
+                              num_layers=hp.choice(
+                                  'num_layers', [2, 3, 4, 5, 6]),
+                              num_timesteps=hp.choice(
+                                  'num_timesteps', [1, 2, 3, 4, 5]),
                               dropout=hp.choice('dropout', [0, 0.1, 0.3, 0.5]),
                               graph_feat_size=hp.choice('graph_feat_size', [50, 100, 200, 300]))}
 hyper_space = Hspace[args['model']]
@@ -197,7 +216,8 @@ def hyper_opt(hyper_paras):
         my_model = AttentiveFP(node_feat_size=AtomFeaturizer.feat_size('h'),
                                edge_feat_size=BondFeaturizer.feat_size('e'),
                                num_layers=hyper_paras['num_layers'], num_timesteps=hyper_paras['num_timesteps'],
-                               graph_feat_size=hyper_paras['graph_feat_size'], output_size=len(tasks),
+                               graph_feat_size=hyper_paras['graph_feat_size'], output_size=len(
+                                   tasks),
                                dropout=hyper_paras['dropout'])
         model_file_name = './saved_model/%s_%s_%s_%.6f_%s_%s_%s_%s.pth' % (args['model'], args['task'],
                                                                            hyper_paras['l2'], hyper_paras['lr'],
@@ -208,21 +228,26 @@ def hyper_opt(hyper_paras):
     else:
         my_model = GATClassifier(in_feats=AtomFeaturizer.feat_size('h'),
                                  gat_hidden_feats=hyper_paras['gat_hidden_feats'],
-                                 num_heads=hyper_paras['num_heads'], n_tasks=len(tasks),
+                                 num_heads=hyper_paras['num_heads'], n_tasks=len(
+                                     tasks),
                                  classifier_hidden_feats=hyper_paras['classifier_hidden_feats'])
         model_file_name = './saved_model/%s_%s_%s_%.6f_%s_%s_%s.pth' % (args['model'], args['task'],
                                                                         hyper_paras['l2'], hyper_paras['lr'],
                                                                         hyper_paras['gat_hidden_feats'],
                                                                         hyper_paras['num_heads'],
                                                                         hyper_paras['classifier_hidden_feats'])
-    optimizer = torch.optim.Adam(my_model.parameters(), lr=hyper_paras['lr'], weight_decay=hyper_paras['l2'])
+    optimizer = torch.optim.Adam(my_model.parameters(
+    ), lr=hyper_paras['lr'], weight_decay=hyper_paras['l2'])
 
     if task_type == 'reg':
         loss_func = MSELoss(reduction='none')
-        stopper = EarlyStopping(mode='lower', patience=patience, filename=model_file_name)
+        stopper = EarlyStopping(
+            mode='lower', patience=patience, filename=model_file_name)
     else:
-        loss_func = BCEWithLogitsLoss(reduction='none', pos_weight=pos_weight.to(args['device']))
-        stopper = EarlyStopping(mode='higher', patience=patience, filename=model_file_name)
+        loss_func = BCEWithLogitsLoss(
+            reduction='none', pos_weight=pos_weight.to(args['device']))
+        stopper = EarlyStopping(
+            mode='higher', patience=patience, filename=model_file_name)
     my_model.to(device)
 
     for j in range(epochs):
@@ -240,7 +265,8 @@ def hyper_opt(hyper_paras):
     val_scores = run_an_eval_epoch(my_model, val_loader, args)
     te_scores = run_an_eval_epoch(my_model, test_loader, args)
     print({'train': tr_scores, 'valid': val_scores, 'test': te_scores})
-    feedback = val_scores[args['metric']] if task_type == 'reg' else (1 - val_scores[args['metric']])
+    feedback = val_scores[args['metric']] if task_type == 'reg' else (
+        1 - val_scores[args['metric']])
     my_model.cpu()
     torch.cuda.empty_cache()
     gc.collect()
@@ -250,11 +276,13 @@ def hyper_opt(hyper_paras):
 # start hyper-parameters optimization
 print('******hyper-parameter optimization is starting now******')
 trials = Trials()
-opt_res = fmin(hyper_opt, hyper_space, algo=tpe.suggest, max_evals=opt_iters, trials=trials)
+opt_res = fmin(hyper_opt, hyper_space, algo=tpe.suggest,
+               max_evals=opt_iters, trials=trials)
 
 # hyper-parameters optimization is over
 print('******hyper-parameter optimization is over******')
-print('the best hyper-parameters settings for ' + args['task'] + ' ' + args['model'] + ' are:  ', opt_res)
+print('the best hyper-parameters settings for ' +
+      args['task'] + ' ' + args['model'] + ' are:  ', opt_res)
 
 # construct the model based on the optimal hyper-parameters
 l2_ls = [0, 10 ** -8, 10 ** -6, 10 ** -4]
@@ -341,9 +369,11 @@ for split in range(1, repetitions + 1):
     if args['metric'] == 'roc_auc':
         seed = split
         while True:
-            training_data, data_te = train_test_split(my_df, test_size=0.1, random_state=seed)
+            training_data, data_te = train_test_split(
+                my_df, test_size=0.1, random_state=seed)
             # the training set was further splitted into the training set and validation set
-            data_tr, data_va = train_test_split(training_data, test_size=0.1, random_state=seed)
+            data_tr, data_va = train_test_split(
+                training_data, test_size=0.1, random_state=seed)
             if np.any(data_tr[tasks].apply(all_one_zeros)) or \
                     np.any(data_va[tasks].apply(all_one_zeros)) or \
                     np.any(data_te[tasks].apply(all_one_zeros)):
@@ -356,9 +386,11 @@ for split in range(1, repetitions + 1):
                 print('random seed used in repetition {} is {}'.format(split, seed))
                 break
     else:
-        training_data, data_te = train_test_split(my_df, test_size=0.1, random_state=split)
+        training_data, data_te = train_test_split(
+            my_df, test_size=0.1, random_state=split)
         # the training set was further splitted into the training set and validation set
-        data_tr, data_va = train_test_split(training_data, test_size=0.1, random_state=split)
+        data_tr, data_va = train_test_split(
+            training_data, test_size=0.1, random_state=split)
     tr_indx, val_indx, te_indx = data_tr.index, data_va.index, data_te.index
     train_loader = DataLoader(Subset(my_dataset, tr_indx), batch_size=batch_size, shuffle=True,
                               collate_fn=collate_molgraphs, num_workers=num_workers)
@@ -366,7 +398,8 @@ for split in range(1, repetitions + 1):
                             collate_fn=collate_molgraphs, num_workers=num_workers)
     test_loader = DataLoader(Subset(my_dataset, te_indx), batch_size=batch_size, shuffle=True,
                              collate_fn=collate_molgraphs, num_workers=num_workers)
-    best_model_file = './saved_model/%s_%s_bst_%s.pth' % (args['model'], args['task'], split)
+    best_model_file = './saved_model/%s_%s_bst_%s.pth' % (
+        args['model'], args['task'], split)
 
     if model_name == 'gcn':
         best_model = GCNClassifier(in_feats=AtomFeaturizer.feat_size('h'),
@@ -378,7 +411,8 @@ for split in range(1, repetitions + 1):
     elif model_name == 'gat':
         best_model = GATClassifier(in_feats=AtomFeaturizer.feat_size('h'),
                                    gat_hidden_feats=hidden_feats_ls[opt_res['gat_hidden_feats']],
-                                   num_heads=num_heads_ls[opt_res['num_heads']], n_tasks=len(tasks),
+                                   num_heads=num_heads_ls[opt_res['num_heads']], n_tasks=len(
+                                       tasks),
                                    classifier_hidden_feats=classifier_hidden_feats_ls[
                                        opt_res['classifier_hidden_feats']])
     elif model_name == 'attentivefp':
@@ -386,7 +420,8 @@ for split in range(1, repetitions + 1):
                                  edge_feat_size=BondFeaturizer.feat_size('e'),
                                  num_layers=num_layers_ls[opt_res['num_layers']],
                                  num_timesteps=num_timesteps_ls[opt_res['num_timesteps']],
-                                 graph_feat_size=graph_feat_size_ls[opt_res['graph_feat_size']], output_size=len(tasks),
+                                 graph_feat_size=graph_feat_size_ls[opt_res['graph_feat_size']], output_size=len(
+                                     tasks),
                                  dropout=dropout_ls[opt_res['dropout']])
     else:
         best_model = MPNNModel(node_input_dim=AtomFeaturizer.feat_size('h'),
@@ -399,16 +434,20 @@ for split in range(1, repetitions + 1):
                                       weight_decay=l2_ls[opt_res['l2']])
     if task_type == 'reg':
         loss_func = MSELoss(reduction='none')
-        stopper = EarlyStopping(mode='lower', patience=patience, filename=best_model_file)
+        stopper = EarlyStopping(
+            mode='lower', patience=patience, filename=best_model_file)
     else:
-        loss_func = BCEWithLogitsLoss(reduction='none', pos_weight=pos_weight.to(args['device']))
-        stopper = EarlyStopping(mode='higher', patience=patience, filename=best_model_file)
+        loss_func = BCEWithLogitsLoss(
+            reduction='none', pos_weight=pos_weight.to(args['device']))
+        stopper = EarlyStopping(
+            mode='higher', patience=patience, filename=best_model_file)
     best_model.to(device)
 
     for j in range(epochs):
         # training
         st = time.time()
-        run_a_train_epoch(best_model, train_loader, loss_func, best_optimizer, args)
+        run_a_train_epoch(best_model, train_loader,
+                          loss_func, best_optimizer, args)
         end = time.time()
         # early stopping
         train_scores = run_an_eval_epoch(best_model, train_loader, args)
@@ -418,15 +457,16 @@ for split in range(1, repetitions + 1):
             break
         print(
             'task:{} repetition {:d}/{:d} epoch {:d}/{:d}, training {} {:.3f}, validation {} {:.3f}, time:{:.3f}S'.format(
-                args['task'], split, repetitions, j + 1, epochs, args['metric'], train_scores[args['metric']],
+                args['task'], split, repetitions, j +
+                1, epochs, args['metric'], train_scores[args['metric']],
                 args['metric'],
                 val_scores[args['metric']], end - st))
     stopper.load_checkpoint(best_model)
     tr_scores = run_an_eval_epoch(best_model, train_loader, args)
     val_scores = run_an_eval_epoch(best_model, val_loader, args)
     te_scores = run_an_eval_epoch(best_model, test_loader, args)
-    tr_res.append(tr_scores);
-    val_res.append(val_scores);
+    tr_res.append(tr_scores)
+    val_res.append(val_scores)
     te_res.append(te_scores)
 if task_type == 'reg':
     cols = ['rmse', 'mae', 'r2']
@@ -447,10 +487,16 @@ te_pd['set'] = 'test'
 sta_pd = pd.concat([tr_pd, val_pd, te_pd], ignore_index=True)
 sta_pd['model'] = args['model']
 sta_pd['dataset'] = args['task']
-sta_pd.to_csv('./stat_res/{}_{}_statistical_results_split50.csv'.format(args['task'], args['model']), index=False)
+sta_pd.to_csv('./stat_res/{}_{}_statistical_results_split50.csv'.format(
+    args['task'], args['model']), index=False)
 
-print('training mean:', np.mean(tr, axis=0), 'training std:', np.std(tr, axis=0))
-print('validation mean:', np.mean(val, axis=0), 'validation std:', np.std(val, axis=0))
+print('training mean:', np.mean(tr, axis=0),
+      'training std:', np.std(tr, axis=0))
+print('validation mean:', np.mean(val, axis=0),
+      'validation std:', np.std(val, axis=0))
 print('testing mean:', np.mean(te, axis=0), 'test std:', np.std(te, axis=0))
+
+write_res(args, tr, val, te)
+
 end_time = time.time()
 print('the total elapsed time is', end_time - start_time, 'S')

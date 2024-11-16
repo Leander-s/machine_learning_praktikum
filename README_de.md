@@ -3,7 +3,7 @@
 
 # Code
 
-Source code der im paper gegeben war. Funktioniert nur mit CUDA! 
+Source code der im paper gegeben war.
 
 ## Ubuntu
 
