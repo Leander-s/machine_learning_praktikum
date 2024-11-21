@@ -1,3 +1,0 @@
-Training mean: [0.99352711 0.99194357]
-Validation mean: [0.91569526 0.89456919]
-Testing mean: [0.89381674 0.85863655]
