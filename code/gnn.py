@@ -496,7 +496,5 @@ print('validation mean:', np.mean(val, axis=0),
       'validation std:', np.std(val, axis=0))
 print('testing mean:', np.mean(te, axis=0), 'test std:', np.std(te, axis=0))
 
-write_res(args, tr, val, te)
-
 end_time = time.time()
 print('the total elapsed time is', end_time - start_time, 'S')

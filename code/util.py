@@ -1,6 +1,8 @@
 import numpy as np
 
 
+# Not used anymore
+# can be used to print out results to txt file after running
 def write_res(args, tr, val, te):
     result_txt = open(
         "./stat_res/{}_{}_mean_results_split50.txt".format(args['task'], args['model']), "w")
